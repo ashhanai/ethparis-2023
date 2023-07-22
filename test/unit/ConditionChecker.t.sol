@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 import "forge-std/Test.sol";
 
 import {ConditionChecker, Operator, Condition} from "../../src/ConditionChecker.sol";
+import {Call} from "../../src/Getter.sol";
 
 
 contract ConditionCheckerTest is Test {
@@ -18,11 +19,13 @@ contract ConditionCheckerTest is Test {
 
     function setUp() external {
         condition = Condition({
-            token: token,
-            stateSelector: stateSelector,
-            dynamicInputIndex: 0,
-            staticInputs: new uint256[](0),
-            returnDataWordIndex: 0,
+            getter: Call({
+                token: token,
+                selector: stateSelector,
+                dynamicInputIndex: 0,
+                staticInputs: new uint256[](0),
+                returnDataWordIndex: 0
+            }),
             operator: Operator.gt,
             value: 1
         });
@@ -32,55 +35,6 @@ contract ConditionCheckerTest is Test {
             abi.encodeWithSelector(stateSelector),
             abi.encode(returnValue)
         );
-    }
-
-
-    function test_shouldMakeStaticcall() external {
-        vm.expectCall(
-            token,
-            abi.encodeWithSelector(stateSelector, tokenId)
-        );
-        condition.checkStateCondition(tokenId);
-    }
-
-    function test_shouldFail_whenStaticcallFails() external {
-        vm.mockCallRevert(
-            token,
-            abi.encodeWithSelector(stateSelector),
-            abi.encode("any revert data")
-        );
-
-        vm.expectRevert("Low level staticcall failed");
-        condition.checkStateCondition(tokenId);
-    }
-
-    function test_shouldFail_whenReturnDataZero() external {
-        vm.mockCall(
-            token,
-            abi.encodeWithSelector(stateSelector),
-            abi.encode()
-        );
-
-        vm.expectRevert("Incorrect return data length");
-        condition.checkStateCondition(tokenId);
-    }
-
-    function test_shouldFail_whenReturnDataIncorrectLength() external {
-        vm.mockCall(
-            token,
-            abi.encodeWithSelector(stateSelector),
-            abi.encodePacked(uint64(2))
-        );
-
-        vm.expectRevert("Incorrect return data length");
-        condition.checkStateCondition(tokenId);
-    }
-
-    function test_shouldFail_whenReturnDataWordIndexOutOfBounds() external {
-        condition.returnDataWordIndex = 1;
-
-        vm.expectRevert("Return data word index out of bounds");
-        condition.checkStateCondition(tokenId);
     }
 
     // Equal
@@ -98,8 +52,8 @@ contract ConditionCheckerTest is Test {
             abi.encodePacked(returnData)
         );
 
+        condition.getter.returnDataWordIndex = returnDataWordIndex;
         condition.operator = Operator.eq;
-        condition.returnDataWordIndex = returnDataWordIndex;
         condition.value = value;
 
         assertTrue(condition.checkStateCondition(tokenId));
@@ -118,8 +72,8 @@ contract ConditionCheckerTest is Test {
             abi.encodePacked(returnData)
         );
 
+        condition.getter.returnDataWordIndex = returnDataWordIndex;
         condition.operator = Operator.eq;
-        condition.returnDataWordIndex = returnDataWordIndex;
         condition.value = value;
 
         assertFalse(condition.checkStateCondition(tokenId));
@@ -140,8 +94,8 @@ contract ConditionCheckerTest is Test {
             abi.encodePacked(returnData)
         );
 
+        condition.getter.returnDataWordIndex = returnDataWordIndex;
         condition.operator = Operator.ne;
-        condition.returnDataWordIndex = returnDataWordIndex;
         condition.value = value;
 
         assertTrue(condition.checkStateCondition(tokenId));
@@ -160,8 +114,8 @@ contract ConditionCheckerTest is Test {
             abi.encodePacked(returnData)
         );
 
+        condition.getter.returnDataWordIndex = returnDataWordIndex;
         condition.operator = Operator.ne;
-        condition.returnDataWordIndex = returnDataWordIndex;
         condition.value = value;
 
         assertFalse(condition.checkStateCondition(tokenId));
@@ -184,8 +138,8 @@ contract ConditionCheckerTest is Test {
             abi.encodePacked(returnData)
         );
 
+        condition.getter.returnDataWordIndex = returnDataWordIndex;
         condition.operator = Operator.lt;
-        condition.returnDataWordIndex = returnDataWordIndex;
         condition.value = value;
 
         assertTrue(condition.checkStateCondition(tokenId));
@@ -206,8 +160,8 @@ contract ConditionCheckerTest is Test {
             abi.encodePacked(returnData)
         );
 
+        condition.getter.returnDataWordIndex = returnDataWordIndex;
         condition.operator = Operator.lt;
-        condition.returnDataWordIndex = returnDataWordIndex;
         condition.value = value;
 
         assertFalse(condition.checkStateCondition(tokenId));
@@ -229,8 +183,8 @@ contract ConditionCheckerTest is Test {
             abi.encodePacked(returnData)
         );
 
+        condition.getter.returnDataWordIndex = returnDataWordIndex;
         condition.operator = Operator.le;
-        condition.returnDataWordIndex = returnDataWordIndex;
         condition.value = value;
 
         assertTrue(condition.checkStateCondition(tokenId));
@@ -251,8 +205,8 @@ contract ConditionCheckerTest is Test {
             abi.encodePacked(returnData)
         );
 
+        condition.getter.returnDataWordIndex = returnDataWordIndex;
         condition.operator = Operator.le;
-        condition.returnDataWordIndex = returnDataWordIndex;
         condition.value = value;
 
         assertFalse(condition.checkStateCondition(tokenId));
@@ -275,8 +229,8 @@ contract ConditionCheckerTest is Test {
             abi.encodePacked(returnData)
         );
 
+        condition.getter.returnDataWordIndex = returnDataWordIndex;
         condition.operator = Operator.gt;
-        condition.returnDataWordIndex = returnDataWordIndex;
         condition.value = value;
 
         assertTrue(condition.checkStateCondition(tokenId));
@@ -296,8 +250,8 @@ contract ConditionCheckerTest is Test {
             abi.encodePacked(returnData)
         );
 
+        condition.getter.returnDataWordIndex = returnDataWordIndex;
         condition.operator = Operator.gt;
-        condition.returnDataWordIndex = returnDataWordIndex;
         condition.value = value;
 
         assertFalse(condition.checkStateCondition(tokenId));
@@ -319,8 +273,8 @@ contract ConditionCheckerTest is Test {
             abi.encodePacked(returnData)
         );
 
+        condition.getter.returnDataWordIndex = returnDataWordIndex;
         condition.operator = Operator.ge;
-        condition.returnDataWordIndex = returnDataWordIndex;
         condition.value = value;
 
         assertTrue(condition.checkStateCondition(tokenId));
@@ -341,8 +295,8 @@ contract ConditionCheckerTest is Test {
             abi.encodePacked(returnData)
         );
 
+        condition.getter.returnDataWordIndex = returnDataWordIndex;
         condition.operator = Operator.ge;
-        condition.returnDataWordIndex = returnDataWordIndex;
         condition.value = value;
 
         assertFalse(condition.checkStateCondition(tokenId));

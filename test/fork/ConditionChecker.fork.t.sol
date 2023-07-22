@@ -6,6 +6,7 @@ import "forge-std/Test.sol";
 import {ChickenBondsLike} from "../../src/interfaces/ChickenBondsLike.sol";
 import {UniswapNonFungiblePositionManagerLike} from "../../src/interfaces/UniswapNonFungiblePositionManagerLike.sol";
 import {ConditionChecker, Operator, Condition} from "../../src/ConditionChecker.sol";
+import {Call} from "../../src/Getter.sol";
 
 
 contract ConditionCheckerForkTest is Test {
@@ -27,21 +28,25 @@ contract ConditionCheckerForkTest is Test {
         Condition[] memory conditions = new Condition[](2);
         // Bond with amount > 1000
         conditions[0] = Condition({
-            token: CHICKEN_BONDS_ADDRESS,
-            stateSelector: ChickenBondsLike.getBondAmount.selector,
-            dynamicInputIndex: 0,
-            staticInputs: new uint256[](0),
-            returnDataWordIndex: 0,
+            getter: Call({
+                token: CHICKEN_BONDS_ADDRESS,
+                selector: ChickenBondsLike.getBondAmount.selector,
+                dynamicInputIndex: 0,
+                staticInputs: new uint256[](0),
+                returnDataWordIndex: 0
+            }),
             operator: Operator.gt,
             value: amount
         });
         // Bond with end time after 26th May 2023
         conditions[1] = Condition({
-            token: CHICKEN_BONDS_ADDRESS,
-            stateSelector: ChickenBondsLike.getBondEndTime.selector,
-            dynamicInputIndex: 0,
-            staticInputs: new uint256[](0),
-            returnDataWordIndex: 0,
+            getter: Call({
+                token: CHICKEN_BONDS_ADDRESS,
+                selector: ChickenBondsLike.getBondEndTime.selector,
+                dynamicInputIndex: 0,
+                staticInputs: new uint256[](0),
+                returnDataWordIndex: 0
+            }),
             operator: Operator.ge,
             value: timestamp
         });
@@ -64,21 +69,25 @@ contract ConditionCheckerForkTest is Test {
         Condition[] memory conditions = new Condition[](2);
         // Position with liquidity > 0.05 ether
         conditions[0] = Condition({
-            token: UNISWAP_V3_POSITION_ADDRESS,
-            stateSelector: UniswapNonFungiblePositionManagerLike.positions.selector,
-            dynamicInputIndex: 0,
-            staticInputs: new uint256[](0),
-            returnDataWordIndex: 7,
+            getter: Call({
+                token: UNISWAP_V3_POSITION_ADDRESS,
+                selector: UniswapNonFungiblePositionManagerLike.positions.selector,
+                dynamicInputIndex: 0,
+                staticInputs: new uint256[](0),
+                returnDataWordIndex: 7
+            }),
             operator: Operator.ge,
             value: liquidity
         });
         // Position token 1 == USDC
         conditions[1] = Condition({
-            token: UNISWAP_V3_POSITION_ADDRESS,
-            stateSelector: UniswapNonFungiblePositionManagerLike.positions.selector,
-            dynamicInputIndex: 0,
-            staticInputs: new uint256[](0),
-            returnDataWordIndex: 3,
+            getter: Call({
+                token: UNISWAP_V3_POSITION_ADDRESS,
+                selector: UniswapNonFungiblePositionManagerLike.positions.selector,
+                dynamicInputIndex: 0,
+                staticInputs: new uint256[](0),
+                returnDataWordIndex: 3
+            }),
             operator: Operator.eq,
             value: uint256(uint160(token1))
         });
@@ -99,11 +108,13 @@ contract ConditionCheckerForkTest is Test {
 
         Condition[] memory conditions = new Condition[](1);
         conditions[0] = Condition({
-            token: SOME_ERC1155_ASSET,
-            stateSelector: 0x00fdd58e, // balanceOf(address,uint256)
-            dynamicInputIndex: 1,
-            staticInputs: staticInputs,
-            returnDataWordIndex: 0,
+            getter: Call({
+                token: SOME_ERC1155_ASSET,
+                selector: 0x00fdd58e, // balanceOf(address,uint256)
+                dynamicInputIndex: 0,
+                staticInputs: staticInputs,
+                returnDataWordIndex: 0
+            }),
             operator: Operator.ge,
             value: 1
         });
