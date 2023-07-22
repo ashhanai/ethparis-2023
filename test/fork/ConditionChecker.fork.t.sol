@@ -89,4 +89,26 @@ contract ConditionCheckerForkTest is Test {
         assertEq(conditions.checkStateConditions(tokenId), isValid);
     }
 
+    function test_AddressOwnsSetOfAssets() external {
+        address SOME_ERC1155_ASSET = 0x5c761C0597a6cd3005F765B22E552a7B0E223AF5;
+
+        uint256 tokenId = 481;
+
+        uint256[] memory staticInputs = new uint256[](1);
+        staticInputs[0] = uint256(uint160(0x4270DC94f53B4cA770cFAF250170C873a6551892));
+
+        Condition[] memory conditions = new Condition[](1);
+        conditions[0] = Condition({
+            token: SOME_ERC1155_ASSET,
+            stateSelector: 0x00fdd58e, // balanceOf(address,uint256)
+            dynamicInputIndex: 1,
+            staticInputs: staticInputs,
+            returnDataWordIndex: 0,
+            operator: Operator.ge,
+            value: 1
+        });
+
+        assertTrue(conditions.checkStateConditions(tokenId));
+    }
+
 }
