@@ -4,18 +4,21 @@ pragma solidity 0.8.19;
 import {Getter, Call} from "./Getter.sol";
 
 
-// Struct representing logical expression
-// A x B (A - state value, x - operator, B - provided value)
-// Works with 1 dynamic input value and allow to set any number of static input values as `uint256`s
+/// Struct representing logical expression
+/// A x B (A - state value, x - operator, B - provided value)
 struct Condition {
     Call getter;
     Operator operator;
     uint256 value;
 }
 
+/// Enum representing logical operators
 enum Operator { eq, ne, lt, gt, le, ge }
 
 /// v1: all conditions have to be true for the check to pass
+/// Current restrictions:
+/// - support for only 1 dynamic input value
+/// - cannot use the return value of a call in another getter call (cannot reuse return values)
 library ConditionChecker {
     using Getter for Call;
 
